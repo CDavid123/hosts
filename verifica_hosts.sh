@@ -1,10 +1,14 @@
-cat /etc/hosts | while read ip nume
-do
-	case "$ip" in
-		""|\#*) continue ;;
-	esac
-	rezultat=$(nslookup "$nume" 2>/dev/null | grep "Address:" | tail -n 1 | awk '{print $2}')
-	if [ -n "$rezultat" ] && [ "$rezultat" != "$ip" ]; then
-		echo "Bogus IP for $nume in /etc/hosts!"
-	fi
+verifica_ip() {
+    local nume=$1 ip=$2 dns=$3
+    nslookup "$nume" "$dns" 2>/dev/null | awk '/^Address: / {print $2}' | grep -qxF "$ip"
+}
+
+DNS=${1:-8.8.8.8}
+
+grep -E '^[0-9]+\.' /etc/hosts | while read -r ip nume _; do
+    if verifica_ip "$nume" "$ip" "$DNS"; then
+        echo "$nume -> $ip: OK"
+    else
+        echo "Bogus IP for $nume in /etc/hosts!"
+    fi
 done
