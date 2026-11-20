@@ -12,3 +12,4 @@ grep -E '^[0-9]+\.' /etc/hosts | while read -r ip nume _; do
         echo "Bogus IP for $nume in /etc/hosts!"
     fi
 done
+echo "Modificat de Radu"
